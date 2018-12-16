@@ -126,6 +126,18 @@
     margin-top: 5px;
   }
 
+  #banner {
+    top: 80px;
+
+    .fork {
+      float: left;
+      display: inline-block;
+      margin-left: 0px;
+    position:fixed;
+    left:20px;
+
+      }
+  }
   header ul {
     display:none;
   }
