@@ -20,6 +20,13 @@
       <header>
 		<h1>{{ site.title | default: site.github.repository_name }}</h1>
 		<p>{{ site.description | default: site.github.project_tagline }}</p>
+		<style>
+			@media (max-width:979px) {
+			.site-header #header #sidebar-header { 
+				display: block; 
+			  }
+			}
+		 </style>
       </header>
 
       <div id="banner">
