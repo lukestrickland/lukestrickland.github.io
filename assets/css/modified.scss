@@ -475,9 +475,10 @@ footer {
     top: 0px;
 
     .fork {
-      float: left;
+      float: top;
       display: inline-block;
       margin-left: 0px;
+	  margin-top: 0px;
     position:fixed;
     left:20px;
 
