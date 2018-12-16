@@ -479,18 +479,19 @@ footer {
       display: grid;
       margin-left: 0px;
 	  margin-top: 0px;
-
+	  
+	  }
+	.button {
+		width: 10%;
+		height: 10%;
+		position: static;
+	  }  
     position:static;
     left:0px;
 	width: 10%;
 	height:10%
 
       }
-	.button {
-		width: 10%;
-		height: 10%;
-		position: static;
-	  }  
   
   section {
     margin-top: 5px;
