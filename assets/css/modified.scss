@@ -470,6 +470,20 @@ footer {
       -ms-text-overflow: ellipsis;
     }
   }
+
+  #banner {
+    top: 0px;
+
+    .fork {
+      float: left;
+      display: inline-block;
+      margin-left: 0px;
+    position:fixed;
+    left:20px;
+
+      }
+  }  
+  
   section {
     margin-top: 5px;
   }
