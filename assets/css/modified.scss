@@ -473,10 +473,10 @@ footer {
 
   #banner {
     top: 0px;
-	display: block;
+	display: grid;
     .fork {
       float: top;
-      display: inline;
+      display: grid;
       margin-left: 0px;
 	  margin-top: 0px;
     position:fixed;
