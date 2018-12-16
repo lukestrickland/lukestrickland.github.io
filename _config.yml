@@ -1,0 +1,7 @@
+name: Luke Strickland, Researcher
+markdown: kramdown
+permalink: /blog/:year/:month/:day/:title
+theme: jekyll-theme-leap-day
+show_downloads: false
+title: "Luke Strickland"
+repository: lukestrickland/lukestrickland.github.io

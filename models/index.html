@@ -1,0 +1,51 @@
+---
+layout: default
+title: "Luke's code snippets"
+description: "Code"
+mathjax: true
+---
+<b> Modelling Prospective Memory Lapses </b>
+<br /> <br />
+In our <a href="https://www.researchgate.net/publication/326878878_Racing_to_Remember_A_Theory_of_Decision_Control_in_Event-Based_Prospective_Memory">seminal paper modelling Prospective Memory</a>, we discussed
+how it may be possible to use our model to identify lapses of memory.
+Since then, I have implemented and tested the code to do that. The code is implemented 
+in the <a href="https://osf.io/pbwx8/">Dynamic Models of Choice</a> (DMC) suite of functions. Press <a href={{ site.url }}/assets/lbaN_B_pmf.R>here</a> to download the model code. 
+You will need to understand DMC to use the code, so check out the lessons provided in the link.
+As with all custom DMC models, the user must 
+add it to the 'models' directory. It is a variant of the <a href="https://www.ncbi.nlm.nih.gov/pubmed/18243170">Linear Ballistic Accumulator </a> 
+(LBA) model (Brown & Heathcote, 2008), and so it makes sense to store it in the LBA
+subdirectory. As with all DMC model files, the code defines a transform, likelihood, and random function.
+<br /> <br />
+The memory lapse model is a modified version of the linear ballistic accumulator. Two things happen in the event of a memory failure: 1) the PM accumulator fails to run 
+(e.g., in a three-choice task, that only the two ongoing task accumulators run), and 2) PM stimulus 
+input will fail to inhibit ongoing task accumulation. Incorporating these failures requires modifications 
+to the PMDC likelihood. The likelihood of PM responses is reduced in proportion to the probability of PM failure: 
+
+$$L_P = (1-p_{pmf})f(t|\theta_P) \prod_{i=1}^nS(t|\theta_i)$$
+
+\(L_P (t)\) refers to the probability of observing a PM response with decision time \(t\), 
+where \(t\) is RT minus non-decision time. \(p_{pmf}\) is the probability of PM failure.
+\(f(t│\theta_P )\) is the probability density that PM accumulator would reach threshold at time \(t\). 
+\(S(t│\theta_i )\) is the probability that an ongoing task accumulator \(i\)  would reach threshold 
+before time \(t\) (i.e., the survivor function), \(\prod_{i=1}^nS(t|\theta_i)\) and thus is the probability that 
+none of the ongoing task accumulators \(i = 1 … n\)  would pre-empt the PM accumulator before time t. 
+
+The likelihood of each ongoing task response i is a mixture of two scenarios, 
+1) the scenario in which PM fails, and only the ongoing task accumulators race to
+ threshold with no inhibition from PM inputs, and 2), the scenario in which the 
+ PM accumulator is present and PM inputs can inhibit ongoing task accumulation. 
+ 
+ $$L_i = p_{pmf}f(t|\theta_i) \prod_{j \ne i}S(t|\theta_j) +
+ (1-p_{pmf})f(t|\theta_{i,inh})S(t|\theta_P) \prod_{j \ne i}S(t|\theta_{j,inh})
+ $$
+ 
+ Note that in the above \(L_i (t)\) refers to the probability of observing the ongoing task response 
+ \(i\) with decision time \(t\). \(S(t|\theta_j)\) refers to the survivor function for any alternative ongoing 
+ task response \(j\) in \(j… n\), and \(S(t|\theta_P)\) is the survivor function for the PM accumulator. 
+ \(f(t|\theta_{i,inh})\) refers to the probability density of ongoing task accumulator \(i\) reaching 
+ threshold at time \(t\), given possible inhibition from PM stimulus inputs, and \(S(t|\theta_{j,inh})\) 
+ refers to the survivor function for any alternative ongoing task accumulators \(j\) in \(j… n\) , 
+ given possible inhibition from PM stimulus inputs. On non-PM trials, 
+ inhibition from PM stimulus inputs is fixed at 0.
+ 
+ 

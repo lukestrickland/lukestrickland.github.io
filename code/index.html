@@ -1,0 +1,205 @@
+---
+layout: default
+title: "Luke's code snippets"
+description: "Code"
+mathjax: true
+---
+
+Here I post fun code that has gotten me out of some tight spots. For more serious projects see github.
+
+</br>
+
+</br>
+<b>Cleaning up references!</b>
+
+</br>
+Recently, after writing a very long paper with many references in BibTex, I realised my <a href={{ site.url }}/assets/PMDC.bib>.bib file</a> was a mess!
+Fortunately, I was able to make cleaning the file up fun rather than a drag. First, my references
+had a bunch of spurious issue numbers that weren't really needed. Some bash below completely wiped out
+the issue numbers from the bib file.
+<pre><code>grep -v 'issn' PMDC.bib </code></pre>
+ 
+ Second, a lot of journal names weren't capitalized. Some sneaky awk-fu (below) was handy 
+ to capitalize all journal names. Run the script by entering <code>awk -f printchar.awk PMDC.bib > out.bib </code>
+ into bash.
+
+ Note the list of words that shouldn't be capitalized :"a the to at in on with and but or of".
+Maybe not comprehensive but did the job for me!
+
+ <pre><code> 
+BEGIN{split("a the to at in on with and but or of",w); for(i in w)nocap[w[i]]}
+{gsub(/journal={/, "journal = {")}
+function cap(word){
+	if (substr(word,1,1)=="{")
+		return toupper(substr(word,1,2)) tolower(substr(word,3));
+	else
+		return toupper(substr(word,1,1)) tolower(substr(word,2));
+		}
+/[J|j]ournal =/{for(i=1;i<=NF;++i){printf "%s%s",(i==1||i==NF||!(tolower($i) in nocap)?cap($i):tolower($i)),(i==NF?"\n":" ")}}
+!/[J|j]ournal =/{print}
+</code></pre>
+</br>
+<b>80 Million eye-tracking samples, oh dear!</b>
+</br>
+After programming an eye-tracking experiment not all that long ago, 
+my team and I later decided that it would be really great to look at 
+a bunch more data than we originally intended. This required digging into
+raw eyetracking logs with a total of 80 million rows, oh dear! My first problem
+was that the logs simply wouldn't load into memory. I resolved this by using python 
+to stream the data row by row into an SQL data base, nasty!
+
+ <pre><code> 
+ 
+import sqlite3
+import csv
+import operator
+
+sample_delim = open ('day1_samples.txt', 'rb')
+reader = csv.reader(sample_delim, 
+	delimiter='\t')
+
+headers= reader.next()
+#print(headers)
+
+useful_columns = ['DATA_FILE','LEFT_ACCELERATION_X', 'LEFT_ACCELERATION_Y', 
+'LEFT_GAZE_X', 'LEFT_GAZE_Y',  'LEFT_IN_BLINK','LEFT_IN_SACCADE',
+ 'LEFT_SACCADE_INDEX','LEFT_VELOCITY_X', 'LEFT_VELOCITY_Y', 
+ 'SAMPLE_BUTTON', 'SAMPLE_INDEX', 'SAMPLE_INPUT', 'SAMPLE_MESSAGE', 
+ 'TIMESTAMP', 'TRIAL_LABEL', 'TRIAL_START_TIME']
+
+
+useful_indices =[headers.index(header) for header
+ in headers if header in useful_columns]
+
+db_conn=sqlite3.connect('samples.db')
+
+
+theCursor = db_conn.cursor()
+
+db_conn.execute("DROP TABLE IF EXISTS Samples")
+db_conn.execute("CREATE TABLE Samples(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, DATA_FILE TEXT, LEFT_ACCELERATION_X INTEGER,"
+	" LEFT_ACCELERATION_Y INTEGER, LEFT_GAZE_X INTEGER, LEFT_GAZE_Y INTEGER,  LEFT_IN_BLINK TEXT, LEFT_IN_SACCADE TEXT,"
+	"LEFT_SACCADE_INDEX INTEGER,LEFT_VELOCITY_X INTEGER, LEFT_VELOCITY_Y INTEGER, SAMPLE_BUTTON TEXT, SAMPLE_INDEX INTEGER,"
+	" SAMPLE_INPUT TEXT, SAMPLE_MESSAGE TEXT, TIMESTAMP INTEGER, TRIAL_LABEL TEXT, TRIAL_START_TIME INTEGER, D INTEGER);")
+
+j=1
+for row in reader:
+	row = [row[k] for k in useful_indices]
+	j += 1
+	print(j)
+	row.append(1)
+	theCursor.execute('''INSERT INTO Samples(DATA_FILE,LEFT_ACCELERATION_X, LEFT_ACCELERATION_Y, 
+	LEFT_GAZE_X, LEFT_GAZE_Y,  LEFT_IN_BLINK,LEFT_IN_SACCADE,
+	LEFT_SACCADE_INDEX,LEFT_VELOCITY_X, LEFT_VELOCITY_Y, 
+	SAMPLE_BUTTON, SAMPLE_INDEX, SAMPLE_INPUT, SAMPLE_MESSAGE, 
+	TIMESTAMP, TRIAL_LABEL, TRIAL_START_TIME,D)
+	                  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''', row)
+
+
+#####Add day 2
+print("session 2")
+sample_delim = open ('day2_samples.txt', 'rb')
+reader = csv.reader(sample_delim, 
+	delimiter='\t')
+
+headers= reader.next()
+print(headers)
+
+j=1
+for row in reader:
+	row = [row[k] for k in useful_indices]
+#	print(row)
+	j += 1
+	print(j)
+	row.append(2)
+	theCursor.execute('''INSERT INTO Samples(DATA_FILE,LEFT_ACCELERATION_X, LEFT_ACCELERATION_Y, 
+	LEFT_GAZE_X, LEFT_GAZE_Y,  LEFT_IN_BLINK,LEFT_IN_SACCADE,
+	LEFT_SACCADE_INDEX,LEFT_VELOCITY_X, LEFT_VELOCITY_Y, 
+	SAMPLE_BUTTON, SAMPLE_INDEX, SAMPLE_INPUT, SAMPLE_MESSAGE, 
+	TIMESTAMP, TRIAL_LABEL, TRIAL_START_TIME,D)
+	                  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''', row)
+
+
+
+db_conn.commit()
+db_conn.close()
+
+
+
+print("closed")
+</code></pre>
+
+From there it was unpleasant, but straightforward enough, to get the data we needed out of 
+R in a format that I was able to patch together with the output from the task.
+
+ <pre><code> 
+library(data.table)
+library(RSQLite)
+library(batchtools)
+
+# connect to the sqlite file
+sqlite    <- dbDriver("SQLite")
+db <- dbConnect(sqlite, dbname="python/samples.db")
+
+###Use big samples object to
+#find trials for each participant corresponding to
+#experiment trials (removing calibration, drift_corrects etc)
+#also extract opensesame trial number, minimum/maximum gaze for that saccade
+#(to identify the trial and whether a response saccade)
+
+dbListTables(db)
+
+eyelink_subs <- unique(paste("sub_", dats$subject, ".edf", sep=""))
+#have to paste all in one line so to not add \n :( (otherwrise call paste multiple times)
+sql_syn <- paste("SELECT SAMPLE_INDEX, SAMPLE_MESSAGE, TRIAL_LABEL, LEFT_GAZE_X, LEFT_GAZE_Y, LEFT_SACCADE_INDEX,D FROM Samples WHERE DATA_FILE == '",
+  eyelink_subs, "'", sep="")
+
+trial_indices <- list()
+OSEXP_trials <- list()
+saccade_ind <- list()
+saccade_x_max_min <- list()
+
+#loop through all subjects, querying the db 1 by 1 (so that memory doesn't
+# explode)
+
+for (i in 1:length(eyelink_subs)){
+  samples_subj <- data.table(dbGetQuery(db,sql_syn[i]))
+  start_samples_subj <- samples_subj[SAMPLE_MESSAGE=="start_trial"]
+
+  trial_indices[[i]]= cbind(
+    unique(start_samples_subj[D==1,TRIAL_LABEL]),
+    unique(start_samples_subj[D==2,TRIAL_LABEL]))
+
+  OSEXP_trial <- samples_subj[grepl("OSEXP", SAMPLE_MESSAGE)]
+  OSEXP_trials[[i]] <- cbind(
+    OSEXP_trial[D==1,SAMPLE_MESSAGE],
+    OSEXP_trial[D==2,SAMPLE_MESSAGE])
+
+  saccade_ind[[i]] <- samples_subj[,unique(LEFT_SACCADE_INDEX
+                                           [LEFT_SACCADE_INDEX!="."]),
+                                   by=.(TRIAL_LABEL,D)]
+
+  max <- samples_subj[,max(as.numeric(LEFT_GAZE_X[LEFT_GAZE_X!='.'])),
+                                   by=.(TRIAL_LABEL, LEFT_SACCADE_INDEX,D)]
+  min <- samples_subj[,min(as.numeric(LEFT_GAZE_X[LEFT_GAZE_X!='.' &
+                                                    as.numeric(LEFT_GAZE_X)!=0])),
+                      by=.(TRIAL_LABEL, LEFT_SACCADE_INDEX,D)]
+
+  minmax <- list(min[LEFT_SACCADE_INDEX!='.'], max[LEFT_SACCADE_INDEX!='.'])
+  names(minmax) <- c("min", "max")
+  saccade_x_max_min[[i]] <- minmax
+
+  print(i)
+}
+
+rm(samples_subj)
+dbDisconnect(db)
+
+names(trial_indices) <- eyelink_subs
+
+save(trial_indices,
+     OSEXP_trials ,
+     saccade_ind,
+     saccade_x_max_min,
+     file="data/SQL_loop.RData")
+</code></pre>
