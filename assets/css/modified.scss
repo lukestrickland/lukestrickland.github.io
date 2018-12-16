@@ -81,16 +81,18 @@
   }
 
   #banner {
-    top: 80px;
+    width: 100%;
+
+    .downloads {
+        margin-right: 60px;
+      }
 
     .fork {
-      float: left;
-      display: inline-block;
-      margin-left: 0px;
-    position:fixed;
-    left:20px;
+    }
 
-      }
+    #logo {
+      margin-right: 15px;
+    }
   }
 
   section {
@@ -127,16 +129,18 @@
   }
 
   #banner {
-    top: 80px;
+    width: 100%;
+
+    .downloads {
+        margin-right: 60px;
+      }
 
     .fork {
-      float: left;
-      display: inline-block;
-      margin-left: 0px;
-    position:fixed;
-    left:20px;
+    }
 
-      }
+    #logo {
+      margin-right: 15px;
+    }
   }
   header ul {
     display:none;
