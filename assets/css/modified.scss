@@ -480,15 +480,16 @@ footer {
       margin-left: 0px;
 	  margin-top: 0px;
 
-    position:fixed;
+    position:static;
     left:0px;
 	width: 10%;
 	height:10%
 
       }
 	.button {
-		width:10%
-		height:10%
+		width: 10%;
+		height: 10%;
+		position: static;
 	  }  
   
   section {
