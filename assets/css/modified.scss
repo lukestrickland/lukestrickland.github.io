@@ -2,7 +2,6 @@
 ---
 
 
-
 @import "normalize";
 @import "fonts";
 @import "rouge-base16-dark";
@@ -470,33 +469,25 @@ footer {
       -ms-text-overflow: ellipsis;
     }
   }
-
-  #banner {
-    top: 0px;
-	display: grid;
-    .fork {
-      float: top;
-      display: grid;
-      margin-left: 0px;
-	  margin-top: 0px;
-	  
-	  }
-	.button {
-		width: 10%;
-		height: 10%;
-		position: static;
-	  }  
-    position:static;
-    left:0px;
-	width: 10%;
-	height:10%
-
-      }
-  
   section {
     margin-top: 5px;
   }
 
+  #banner {
+    top: 80px;
+	position:static;
+    .fork {
+      float: left;
+      display: inline-block;
+      margin-left: 0px;
+    position:static;
+    left:20px;
+      }
+    .button {
+	  position:static;
+  }
+  }
+  
   header ul {
     display:none;
   }
