@@ -1,16 +1,15 @@
 ---
-layout: default
-title: "Luke's code snippets"
+layout: post
+title: "PM trigger failures"
 description: "Code"
 mathjax: true
 ---
 <b> Modelling Prospective Memory Lapses </b>
 <br /> <br />
-In our <a href="https://www.researchgate.net/publication/326878878_Racing_to_Remember_A_Theory_of_Decision_Control_in_Event-Based_Prospective_Memory">seminal paper modelling Prospective Memory</a>, we discussed
-how it may be possible to use our model to identify lapses of memory.
-Since then, I have implemented and tested the code to do that. The code is implemented 
+In <a href="https://www.researchgate.net/publication/326878878_Racing_to_Remember_A_Theory_of_Decision_Control_in_Event-Based_Prospective_Memory">previous research</a>, my collaborators and I
+have proposed that evidence accumulation models could potentially measure lapses of Prospective Memory (i.e., forgetting). 
+I have implemented one such measurement framework 
 in the <a href="https://osf.io/pbwx8/">Dynamic Models of Choice</a> (DMC) suite of functions. Press <a href={{ site.url }}/assets/lbaN_B_pmf.R>here</a> to download the model code. 
-You will need to understand DMC to use the code, so check out the lessons provided in the link.
 As with all custom DMC models, the user must 
 add it to the 'models' directory. It is a variant of the <a href="https://www.ncbi.nlm.nih.gov/pubmed/18243170">Linear Ballistic Accumulator </a> 
 (LBA) model (Brown & Heathcote, 2008), and so it makes sense to store it in the LBA
@@ -47,5 +46,6 @@ The likelihood of each ongoing task response i is a mixture of two scenarios,
  refers to the survivor function for any alternative ongoing task accumulators \(j\) in \(j… n\) , 
  given possible inhibition from PM stimulus inputs. On non-PM trials, 
  inhibition from PM stimulus inputs is fixed at 0.
+ 
  
  
